@@ -1,11 +1,12 @@
 import * as fs from 'fs';
-import { Keypair, Connection, PublicKey } from '@solana/web3.js';
+import { Keypair, Connection, PublicKey, sendAndConfirmTransaction, SystemProgram, Transaction } from '@solana/web3.js';
+import clc from 'cli-color';
 
 const DEVNET_URL = 'https://api.devnet.solana.com';
 const WALLET_FILE_PATH = 'wallets.json';
 
 interface WalletData {
-	wallets: { [name: string]: { publicKey: PublicKey; privateKey: Uint8Array } };
+	wallets: { [name: string]: { publicKey: PublicKey; privateKey: Uint8Array; balance: number } };
 	selectedWallet?: string;
 }
 
@@ -22,12 +23,10 @@ export function loadWallet(): WalletData {
 
 		return parsedData;
 	} catch (error) {
+		console.error(clc.red('Error loading wallet data:', error));
 		return { wallets: {}, selectedWallet: undefined };
 	}
 }
-
-
-
 
 export function saveWallet(walletData: WalletData): void {
 	try {
@@ -42,7 +41,7 @@ export function saveWallet(walletData: WalletData): void {
 		const data = JSON.stringify(newData, null, 2);
 		fs.writeFileSync(WALLET_FILE_PATH, data, 'utf-8');
 	} catch (error) {
-		console.error('Error saving wallet data:', error);
+		console.error(clc.red('Error saving wallet data:', error));
 	}
 }
 
@@ -54,14 +53,16 @@ export async function createWallet(walletName?: string): Promise<void> {
 	const walletData = loadWallet();
 	const name = walletName || keypair.publicKey.toBase58();
 
+	console.log(keypair)
 	walletData.wallets[name] = {
 		publicKey: keypair.publicKey,
 		privateKey: keypair.secretKey,
+		balance: 0
 	};
 
 	saveWallet(walletData);
 
-	console.log(`Wallet created successfully. Name: ${name}, Public key: ${keypair.publicKey.toBase58()}`);
+	console.log(clc.green('Wallet created successfully.'), clc.bold(`Name: ${name}, Public key: ${keypair.publicKey.toBase58()}`));
 }
 
 export async function selectWallet(walletName: string): Promise<void> {
@@ -69,13 +70,13 @@ export async function selectWallet(walletName: string): Promise<void> {
 	if (walletData.wallets[walletName]) {
 		walletData.selectedWallet = walletName;
 		saveWallet(walletData);
-		console.log(`Selected wallet: ${walletName}`);
+		console.log(clc.blue(`Selected wallet: ${walletName}`));
 	} else {
-		console.error('Error: Wallet not found.');
+		console.error(clc.red('Error: Wallet not found.'));
 	}
 }
 
-export async function performAirdrop(X: string, options: { left: boolean }): Promise<void> {
+export async function performAirdrop(X: string): Promise<void> {
 	const connection = new Connection(DEVNET_URL);
 
 	const walletData = loadWallet();
@@ -83,19 +84,19 @@ export async function performAirdrop(X: string, options: { left: boolean }): Pro
 	const wallet = walletData.wallets[selectedWalletName];
 
 	if (!wallet || !wallet.publicKey) {
-		console.error('Error: Wallet not found.');
+		console.error(clc.red('Error: Wallet not found.'));
 		return;
 	}
 
-	const amount = options.left ? 'LEFT' : X || '1';
+	const amount = X || '1';
 
-	console.log(`Airdropping ${amount} SOL to wallet: ${wallet.publicKey.toBase58()}`);
+	console.log(clc.yellow(`Airdropping ${amount} SOL to wallet: ${wallet.publicKey.toBase58()}`));
 
 	const airdropSignature = await connection.requestAirdrop(wallet.publicKey, +amount * 1e9); // Convert SOL to lamports
 
 	await connection.confirmTransaction(airdropSignature);
 
-	console.log('Airdrop completed successfully.');
+	console.log(clc.green('Airdrop completed successfully.'));
 }
 
 export async function checkWalletBalance(walletName?: string): Promise<void> {
@@ -104,16 +105,84 @@ export async function checkWalletBalance(walletName?: string): Promise<void> {
 	const wallet = walletData.wallets[selectedWalletName];
 
 	if (!wallet) {
-		console.error('Error: Wallet not found.');
+		console.error(clc.red('Error: Wallet not found.'));
 		return;
 	}
 
 	const connection = new Connection(DEVNET_URL);
-	console.log(typeof wallet.privateKey)
 	try {
 		const balance = await connection.getBalance(wallet.publicKey);
-		console.log(`Wallet balance: ${balance / 1e9} SOL`); // Convert lamports to SOL
+
+		wallet.balance = balance
+		walletData.wallets[selectedWalletName] = wallet
+		saveWallet(walletData)
+
+		console.log(clc.green(`Wallet balance: ${balance / 1e9} SOL`)); // Convert lamports to SOL
 	} catch (error) {
-		console.error('Error fetching balance:', error);
+		console.error(clc.red('Error fetching balance:', error));
+	}
+}
+
+
+export async function transfer(otherPublicKey: string, amount: string): Promise<void> {
+	const connection = new Connection(DEVNET_URL);
+
+	// Load selected wallet
+	const walletData = loadWallet();
+	const selectedWalletName = walletData.selectedWallet || Object.keys(walletData.wallets)[0];
+	const selectedWallet = walletData.wallets[selectedWalletName];
+
+	if (!selectedWallet || !selectedWallet.publicKey) {
+		console.error('Error: Wallet not found.');
+		return;
+	}
+
+	// Convert SOL to lamports
+	const amountLamports = parseFloat(amount) * 1e9;
+
+	// Create a transaction for the transfer
+	const transaction = new Transaction().add(
+		SystemProgram.transfer({
+			fromPubkey: selectedWallet.publicKey,
+			toPubkey: new PublicKey(otherPublicKey),
+			lamports: amountLamports,
+		})
+	);
+
+	const bytearray = new Uint8Array(Object.values(selectedWallet.privateKey))
+	console.log(bytearray);
+	const keypair = Keypair.fromSecretKey(bytearray)
+	console.log(keypair.publicKey.toBase58())
+
+	// Sign and send the transaction
+	console.log(keypair.publicKey.toBase58() === selectedWallet.publicKey.toBase58());
+	await sendAndConfirmTransaction(connection, transaction, [keypair]);
+	console.log(`Transfer completed successfully. Transaction signature:`);
+}
+
+export async function updateBalances(): Promise<void> {
+	const walletData = loadWallet();
+	const connection = new Connection(DEVNET_URL);
+
+	let n = 0
+	for (const walletName in walletData.wallets) {
+		const wallet = walletData.wallets[walletName];
+
+		try {
+			const balance = await connection.getBalance(wallet.publicKey);
+			if (wallet.balance != balance) {
+				n++;
+			}
+
+			wallet.balance = balance;
+
+		} catch (error) {
+			console.error(clc.red(`Error updating balance for ${walletName}:`, error));
+		}
+	}
+
+	saveWallet(walletData);
+	if (n != 0) {
+		console.log(clc.bgCyanBright("Updated", n, "Wallet Balances"))
 	}
 }
