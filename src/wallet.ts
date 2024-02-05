@@ -62,7 +62,7 @@ export async function createWallet(walletName?: string): Promise<void> {
 
 	saveWallet(walletData);
 
-	console.log(clc.green('Wallet created successfully.'), clc.bold(`Name: ${name}, Public key: ${keypair.publicKey.toBase58()}`));
+	console.log(clc.green("Wallet created successfully."), clc.bold(`Name: ${name}, Public key: ${keypair.publicKey.toBase58()}\n`));
 }
 
 export async function selectWallet(walletName: string): Promise<void> {
@@ -70,9 +70,9 @@ export async function selectWallet(walletName: string): Promise<void> {
 	if (walletData.wallets[walletName]) {
 		walletData.selectedWallet = walletName;
 		saveWallet(walletData);
-		console.log(clc.blue(`Selected wallet: ${walletName}`));
+		console.log(clc.cyan("Selected wallet changed to: ${walletName}\n"));
 	} else {
-		console.error(clc.red('Error: Wallet not found.'));
+		console.error(clc.red("Error: Wallet not found."));
 	}
 }
 
@@ -140,49 +140,29 @@ export async function transfer(otherPublicKey: string, amount: string): Promise<
 	// Convert SOL to lamports
 	const amountLamports = parseFloat(amount) * 1e9;
 
+	let toPublicKey: PublicKey;
+
+	if (walletData.wallets[otherPublicKey] && walletData.wallets[otherPublicKey].publicKey) {
+		// Check if the provided publicKey is a wallet name or not
+		toPublicKey = walletData.wallets[otherPublicKey].publicKey;
+	} else {
+		toPublicKey = new PublicKey(otherPublicKey);
+	}
+
 	// Create a transaction for the transfer
 	const transaction = new Transaction().add(
 		SystemProgram.transfer({
 			fromPubkey: selectedWallet.publicKey,
-			toPubkey: new PublicKey(otherPublicKey),
+			toPubkey: toPublicKey,
 			lamports: amountLamports,
 		})
 	);
 
 	const bytearray = new Uint8Array(Object.values(selectedWallet.privateKey))
-	console.log(bytearray);
 	const keypair = Keypair.fromSecretKey(bytearray)
-	console.log(keypair.publicKey.toBase58())
 
 	// Sign and send the transaction
-	console.log(keypair.publicKey.toBase58() === selectedWallet.publicKey.toBase58());
-	await sendAndConfirmTransaction(connection, transaction, [keypair]);
-	console.log(`Transfer completed successfully. Transaction signature:`);
+	const signature = await sendAndConfirmTransaction(connection, transaction, [keypair]);
+	console.log(clc.greenBright("Transfer completed successfully. Transaction signature: " + clc.magentaBright(signature)));
 }
 
-export async function updateBalances(): Promise<void> {
-	const walletData = loadWallet();
-	const connection = new Connection(DEVNET_URL);
-
-	let n = 0
-	for (const walletName in walletData.wallets) {
-		const wallet = walletData.wallets[walletName];
-
-		try {
-			const balance = await connection.getBalance(wallet.publicKey);
-			if (wallet.balance != balance) {
-				n++;
-			}
-
-			wallet.balance = balance;
-
-		} catch (error) {
-			console.error(clc.red(`Error updating balance for ${walletName}:`, error));
-		}
-	}
-
-	saveWallet(walletData);
-	if (n != 0) {
-		console.log(clc.bgCyanBright("Updated", n, "Wallet Balances"))
-	}
-}
