@@ -58,7 +58,7 @@ export async function updateBalances(): Promise<void> {
 
     saveWallet(walletData);
     if (n != 0) {
-        console.log(clc.italic.bgWhite("Updated", n, "Wallet Balances\n\n"))
+        console.log(clc.italic.white("Updated", n, "Wallet Balance(s)") + "\n\n")
     }
 }
 
