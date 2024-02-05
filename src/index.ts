@@ -63,8 +63,8 @@ async function main() {
     });
 
   program
-    .command('transfer <otherPublicKey> <amount>')
-    .description('Transfer SOL to another wallet')
+    .command('transfer <otherPublicKey/walletName> <amount>')
+    .description('Transfer SOL to another wallet using public key or wallets name')
     .action((otherPublicKey, amount) => {
       transfer(otherPublicKey, amount);
     });
