@@ -34,3 +34,10 @@ Navigate to the `out` folder and run:
 node index.js
 ```
 - You can display the help menu using help flag (-h or --help).
+
+### To - Do
+
+* Delete wallet command
+* Add wallets using a secret key
+* Derive child wallets using a parent wallet
+* More Solana network status parameters (tps etc.)
