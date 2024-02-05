@@ -53,7 +53,6 @@ export async function createWallet(walletName?: string): Promise<void> {
 	const walletData = loadWallet();
 	const name = walletName || keypair.publicKey.toBase58();
 
-	console.log(keypair)
 	walletData.wallets[name] = {
 		publicKey: keypair.publicKey,
 		privateKey: keypair.secretKey,
@@ -70,7 +69,7 @@ export async function selectWallet(walletName: string): Promise<void> {
 	if (walletData.wallets[walletName]) {
 		walletData.selectedWallet = walletName;
 		saveWallet(walletData);
-		console.log(clc.cyan("Selected wallet changed to: ${walletName}\n"));
+		console.log(clc.cyan("Selected wallet changed to:", walletName, "\n"));
 	} else {
 		console.error(clc.red("Error: Wallet not found."));
 	}
