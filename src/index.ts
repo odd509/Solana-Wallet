@@ -7,16 +7,20 @@ import {
   checkWalletBalance,
   loadWallet,
   transfer,
-  updateBalances
 } from './wallet'; // Adjust the path accordingly
 
-import { getNetworkStatus } from "./utils"
+import { getBanner, getNetworkStatus, listWallets, updateBalances } from "./utils"
 
 async function main() {
 
+  const showBanner = process.argv.includes('-h') || process.argv.includes('--help') || !process.argv.slice(2).length;
+
+  if (showBanner) {
+    console.log(getBanner());
+  }
   const walletData = loadWallet();
   const selectedWalletName = walletData.selectedWallet || 'No wallet selected';
-  console.log(clc.magentaBright("Selected Wallet: ") + clc.cyanBright(selectedWalletName))
+  console.log(clc.underline.magentaBright("Selected Wallet:") + " " + clc.cyanBright(selectedWalletName + "\n"))
 
   await updateBalances();
 
@@ -65,14 +69,23 @@ async function main() {
       transfer(otherPublicKey, amount);
     });
 
+  program
+    .command('list')
+    .description('List all wallets with names and balances')
+    .option('-p, --public', 'Display public addresses')
+    .action((options) => {
+      listWallets(options.public);
+    });
+
+
   program.parse(process.argv);
 
   // If no command is specified, show help
   if (!process.argv.slice(2).length) {
-    const walletData = loadWallet();
-    const selectedWalletName = walletData.selectedWallet || 'No wallet selected';
-    program.outputHelp((help) => help.replace('Usage:', `Selected Wallet: ${selectedWalletName}\n\nUsage:`));
+    program.outputHelp();
   }
+
+
 }
 
 main()
