@@ -2,15 +2,14 @@ import { Connection } from '@solana/web3.js';
 import clc from 'cli-color';
 
 import { loadWallet, saveWallet } from "./wallet"
-const DEVNET_URL = 'https://api.devnet.solana.com';
+import { CONNECTION, WALLET_DATA } from "./index";
 
 export async function getNetworkStatus(): Promise<void> {
-    const connection = new Connection(DEVNET_URL);
 
     try {
-        const epochInfo = await connection.getEpochInfo();
-        const slot = await connection.getSlot();
-        const transactionCount = await connection.getTransactionCount('recent');
+        const epochInfo = await CONNECTION.getEpochInfo();
+        const slot = await CONNECTION.getSlot();
+        const transactionCount = await CONNECTION.getTransactionCount('recent');
         const blockHeight = epochInfo.blockHeight;
 
         console.log(clc.bold.underline.magentaBright(`Network Status:`));
@@ -25,15 +24,13 @@ export async function getNetworkStatus(): Promise<void> {
 }
 
 export async function updateBalances(): Promise<void> {
-    const walletData = loadWallet();
-    const connection = new Connection(DEVNET_URL);
 
     let n = 0
-    for (const walletName in walletData.wallets) {
-        const wallet = walletData.wallets[walletName];
+    for (const walletName in WALLET_DATA.wallets) {
+        const wallet = WALLET_DATA.wallets[walletName];
 
         try {
-            const balance = await connection.getBalance(wallet.publicKey);
+            const balance = await CONNECTION.getBalance(wallet.publicKey);
             if (wallet.balance != balance) {
                 n++;
 
@@ -56,7 +53,7 @@ export async function updateBalances(): Promise<void> {
         }
     }
 
-    saveWallet(walletData);
+    saveWallet(WALLET_DATA);
     if (n != 0) {
         console.log(clc.italic.white("Updated", n, "Wallet Balance(s)") + "\n\n")
     }
@@ -64,8 +61,7 @@ export async function updateBalances(): Promise<void> {
 
 
 export function listWallets(displayPublic: boolean): void {
-    const walletData = loadWallet();
-    const wallets = Object.entries(walletData.wallets);
+    const wallets = Object.entries(WALLET_DATA.wallets);
 
     if (wallets.length === 0) {
         console.log(clc.yellow('No wallets found.'));
