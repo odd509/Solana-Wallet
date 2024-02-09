@@ -1,5 +1,9 @@
 import * as commander from "commander";
 import clc from "cli-color";
+import { Connection } from '@solana/web3.js';
+
+export const WALLET_FILE_PATH: string = "wallets.json";
+
 import {
   createWallet,
   selectWallet,
@@ -8,14 +12,12 @@ import {
   loadWallet,
   transfer,
 } from "./wallet";
-import { Connection } from '@solana/web3.js';
 
 import { getBanner, getNetworkStatus, listWallets, updateBalances } from "./utils"
 
 export const WALLET_DATA = loadWallet();
 export const SELECTED_WALLET_NAME = WALLET_DATA.selectedWallet || "No wallet selected";
 export const DEVNET_URL = "https://api.devnet.solana.com";
-export const WALLET_FILE_PATH = "wallets.json";
 export const CONNECTION = new Connection(DEVNET_URL);
 
 

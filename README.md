@@ -40,7 +40,7 @@ node index.js
 * Use checkWalletBalance() for updateBalances() logic
 * Estimated transfer fee calculation
 * Change provided wallet name logic in wallets.transfer()
-* Use global variables and imports
+* ~~Use global variables and imports~~
 * Delete wallet command
 * Add wallets using a secret key
 * Derive child wallets using a parent wallet
