@@ -37,10 +37,6 @@ node index.js
 
 ### To - Do
 
-* Use checkWalletBalance() for updateBalances() logic
-* Estimated transfer fee calculation
-* Change provided wallet name logic in wallets.transfer()
-* Use global variables and imports
 * Delete wallet command
 * Add wallets using a secret key
 * Derive child wallets using a parent wallet
