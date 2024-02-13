@@ -1,47 +1,55 @@
-# Solana Wallet CLI
+# 🌌 Solana Wallet CLI
+
 A simple command-line interface (CLI) for managing Solana wallets.
 
-### Features
+## 🚀 Key Features
 
-- Create a new Solana wallet with an optional name.
-- Select a wallet for default operations.
-- Perform airdrop of SOL to the selected wallet.
-- Check the balance of the selected wallet.
-- Display Solana network status.
-- Transfer SOL to another wallet.
-- List all wallets with names and balances.
-- Update wallet balances and notify any changes automatically when the program starts.
+- **Create Wallet:** Easily generate a new Solana wallet, with the option to assign a custom name.
+- **Default Wallet:** Select a default wallet for quick operations.
+- **Airdrop SOL:** Initiate an airdrop of SOL to your selected wallet effortlessly.
+- **Check Balance:** Stay informed about the balance of your chosen wallet.
+- **Network Insights:** Quickly view Solana network status for up-to-date information.
+- **Transfer SOL:** Move SOL to another wallet with a simple command.
+- **Wallet Overview:** List all wallets along with their names and balances.
+- **Auto-Update:** Automated updates of wallet balances, with notifications upon program startup.
 
-### Installation
-1) Clone the repository
+## 🛠️ Installation
+
+1.  Clone the repository
+
 ```
 git clone https://github.com/odd509/Solana-Wallet.git
 ```
 
-2) Go to the project directory and install dependencies:
+2. Navigate to the project directory and install dependencies:
+
 ```
 npm install
 ```
 
-3) Compile the typescript code using:  
+3. Compile TypeScript code:
+
 ```
 tsc
 ```
 
-### Usage
+## 💳 Usage
+
 Navigate to the `out` folder and run:
+
 ```
 node index.js
 ```
-- You can display the help menu using help flag (-h or --help).
 
-### To - Do
+For additional assistance, access the help menu using the `-h` or `--help` flag.
 
-* Use checkWalletBalance() for updateBalances() logic
-* Estimated transfer fee calculation
-* Change provided wallet name logic in wallets.transfer()
-* ~~Use global variables and imports~~
-* Delete wallet command
-* Add wallets using a secret key
-* Derive child wallets using a parent wallet
-* More Solana network status parameters (tps etc.)
+## 🎯 To-Do List
+
+- Use checkWalletBalance() for updateBalances() logic
+- Implement estimated transfer fee calculations..
+- Change provided wallet name logic in wallets.transfer()
+- ~~Optimize the use of global variables and imports.~~
+- Introduce a delete wallet command.
+- Add wallets using a secret key
+- Derive child wallets from a parent wallet for a hierarchical structure.
+- Expand network status parameters (e.g., TPS) for better insights.
