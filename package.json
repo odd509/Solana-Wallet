@@ -1,20 +1,20 @@
 {
-  "name": "solana-wallet",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "node out/index.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@solana/web3.js": "^1.89.1",
-    "bigint-buffer": "^1.1.5",
-    "cli-color": "^2.0.3",
-    "typescript": "^5.3.3"
-  },
-  "devDependencies": {
-    "@types/cli-color": "^2.0.6"
-  }
+	"name": "solana-wallet",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"start": "node dist/index.js"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"@solana/web3.js": "^1.89.1",
+		"bigint-buffer": "^1.1.5",
+		"cli-color": "^2.0.3",
+		"typescript": "^5.3.3"
+	},
+	"devDependencies": {
+		"@types/cli-color": "^2.0.6"
+	}
 }
