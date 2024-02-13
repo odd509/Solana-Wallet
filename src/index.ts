@@ -1,6 +1,6 @@
 import * as commander from "commander";
 import clc from "cli-color";
-import { Connection } from '@solana/web3.js';
+import { Connection } from "@solana/web3.js";
 
 export const WALLET_FILE_PATH: string = "wallets.json";
 
@@ -13,24 +13,34 @@ import {
   transfer,
 } from "./wallet";
 
-import { getBanner, getNetworkStatus, listWallets, updateBalances } from "./utils"
+import {
+  getBanner,
+  getNetworkStatus,
+  listWallets,
+  updateBalances,
+} from "./utils";
 
 export const WALLET_DATA = loadWallet();
-export const SELECTED_WALLET_NAME = WALLET_DATA.selectedWallet || "No wallet selected";
+export const SELECTED_WALLET_NAME =
+  WALLET_DATA.selectedWallet || "No wallet selected";
 export const DEVNET_URL = "https://api.devnet.solana.com";
 export const CONNECTION = new Connection(DEVNET_URL);
 
-
-
 async function main() {
-
-  const showBanner = process.argv.includes("-h") || process.argv.includes("--help") || !process.argv.slice(2).length;
+  const showBanner =
+    process.argv.includes("-h") ||
+    process.argv.includes("--help") ||
+    !process.argv.slice(2).length;
 
   if (showBanner) {
     console.log(getBanner());
   }
 
-  console.log(clc.underline.magentaBright("Selected Wallet:") + " " + clc.cyanBright(SELECTED_WALLET_NAME + "\n"))
+  console.log(
+    clc.underline.magentaBright("Selected Wallet:") +
+      " " +
+      clc.cyanBright(SELECTED_WALLET_NAME + "\n")
+  );
 
   await updateBalances();
 
@@ -74,7 +84,9 @@ async function main() {
 
   program
     .command("transfer <otherPublicKey/walletName> <amount>")
-    .description("Transfer SOL to another wallet using public key or wallets name")
+    .description(
+      "Transfer SOL to another wallet using public key or wallets name"
+    )
     .action((otherPublicKey, amount) => {
       transfer(otherPublicKey, amount);
     });
@@ -87,15 +99,12 @@ async function main() {
       listWallets(options.public);
     });
 
-
   program.parse(process.argv);
 
   // If no command is specified, show help
   if (!process.argv.slice(2).length) {
     program.outputHelp();
   }
-
-
 }
 
-main()
+main();
