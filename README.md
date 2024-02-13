@@ -45,11 +45,10 @@ For additional assistance, access the help menu using the `-h` or `--help` flag.
 
 ## 🎯 To-Do List
 
-- Use checkWalletBalance() for updateBalances() logic
-- Implement estimated transfer fee calculations..
-- Change provided wallet name logic in wallets.transfer()
+- Implement estimated transfer fee calculations.
+- Change provided wallet name logic in wallets.transfer().
 - ~~Optimize the use of global variables and imports.~~
 - Introduce a delete wallet command.
-- Add wallets using a secret key
+- Add wallets using a secret key.
 - Derive child wallets from a parent wallet for a hierarchical structure.
 - Expand network status parameters (e.g., TPS) for better insights.
