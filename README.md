@@ -35,7 +35,7 @@ tsc
 
 ## 💳 Usage
 
-Navigate to the `out` folder and run:
+Navigate to the `dist` folder and run:
 
 ```
 node index.js
